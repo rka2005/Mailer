@@ -55,30 +55,92 @@ The main purpose of this system is to automate repetitive mail and statement gen
 
 ```text
 
-Mail_automation/
-├── backend/
-│   ├── app.py
-│   ├── requirements.txt
-│   ├── routes/
-│   │   └── upload.py
-│   ├── services/
-│   │   ├── email_sender.py
-│   │   ├── excel_processor.py
-│   │   ├── firestore_service.py
-│   │   └── pdf_generator.py
-│   ├── credentials/
-│   │   └── Firebase service account JSON
-│   └── party_details.csv
+mail_automation/
+│
 ├── frontend/
-│   ├── package.json
-│   ├── vite.config.js
-│   └── src/
-│       ├── components/
-│       ├── context/
-│       ├── hooks/
-│       ├── layouts/
-│       ├── pages/
-│       └── services/
+│   ├── public/
+│   ├── src/
+│   │
+│   ├── assets/
+│   │
+│   ├── components/
+│   │   ├── Header/
+│   │   ├── Sidebar/
+│   │   ├── Footer/
+│   │   ├── Button/
+│   │   ├── Navbar/
+│   │   ├── UploadCard/
+│   │   ├── DragDropUpload/
+│   │   ├── StatisticsCard/
+│   │   ├── LockedSection/
+│   │   ├── ProtectedRoute/
+│   │   ├── TemplateEditor/
+│   │   ├── TemplatePreview/
+│   │   ├── PlaceholderPanel/
+│   │   ├── SMTPCard/
+│   │   └── UserMenu/
+│   │
+│   ├── pages/
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── UploadExcel.jsx
+│   │   ├── EmailTemplate.jsx
+│   │   ├── SMTPSettings.jsx
+│   │   ├── Attachments.jsx
+│   │   ├── History.jsx
+│   │   ├── Profile.jsx
+│   │   ├── Settings.jsx
+│   │   └── NotFound.jsx
+│   │
+│   ├── layouts/
+│   │   ├── PublicLayout.jsx
+│   │   └── DashboardLayout.jsx
+│   │
+│   ├── services/
+│   │   ├── api.js
+│   │   ├── auth.js
+│   │   ├── firestore.js
+│   │   └── template.js
+│   │
+│   ├── context/
+│   │   ├── AuthContext.jsx
+│   │   └── ThemeContext.jsx
+│   │
+│   ├── App.jsx
+│   └── main.jsx
+│
+│
+├── backend/
+│
+│   ├── app.py
+│   │
+│   ├── routes/
+│   │   ├── auth.py
+│   │   ├── upload.py
+│   │   ├── smtp.py
+│   │   ├── template.py
+│   │   ├── settings.py
+│   │   └── history.py
+│   │
+│   ├── services/
+│   │   ├── excel_processor.py
+│   │   ├── pdf_generator.py
+│   │   ├── email_sender.py
+│   │   ├── email_template.py
+│   │   ├── firestore_service.py
+│   │   ├── smtp_service.py
+│   │   └── auth_service.py
+│   │
+│   ├── credentials/
+│   │   └── firebase-adminsdk.json
+│   │
+│   ├── uploads/
+│   │     (temporary only if needed)
+│   │
+│   ├── requirements.txt
+│   └── .env
+│
 └── README.md
 
 ```
@@ -95,13 +157,13 @@ Mail_automation/
                       ┌────────────────────────────────────────────────┐
                       │          REACT + VITE FRONTEND                 │
                       │────────────────────────────────────────────────│
-                      │ • Login / Register                            │
-                      │ • Dashboard                                   │
-                      │ • Upload Excel                               │
-                      │ • Email Template                             │
-                      │ • SMTP Settings                              │
-                      │ • History                                    │
-                      │ • Profile                                    │
+                      │ • Login / Register                             │
+                      │ • Dashboard                                    │
+                      │ • Upload Excel                                 │
+                      │ • Email Template                               │
+                      │ • SMTP Settings                                │
+                      │ • History                                      │
+                      │ • Profile                                      │
                       └───────────────┬────────────────────────────────┘
                                       │
                ┌──────────────────────┼────────────────────────┐
@@ -112,14 +174,14 @@ Mail_automation/
                │                      │                        │
                │                      │                        │
                │                      │                        │
-               │              ┌───────┴────────┐              │
-               │              │                │              │
-               │              ▼                ▼              │
-               │         User Settings     Party Database     │
-               │         Templates         SMTP Settings      │
-               │         History           Profile            │
-               │                                              │
-               └──────────────────────┬───────────────────────┘
+               │              ┌───────┴────────┐               │
+               │              │                │               │
+               │              ▼                ▼               │
+               │         User Settings     Party Database      │
+               │         Templates         SMTP Settings       │
+               │         History           Profile             │
+               │                                               │
+               └──────────────────────┬────────────────────────┘
                                       │
                                       ▼
                          ┌────────────────────────┐
@@ -391,8 +453,8 @@ For support, replace this section with your actual project contact details, such
 
 | Type | Details |
 | --- | --- |
-| Project owner | Add the maintainer name here |
-| Email | Add a support email here |
-| Team channel | Add your Slack, Teams, or GitHub Issues link here |
+| Project owner | Rohhit Kumar Adak |
+| Email | rohitadak0@gmail.com |
+| Portfolio | rohitadak.dev |
 
 If you want, I can also tailor this README with your real support contact and add screenshots or usage examples.
