@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+
+# Firebase credentials
+credentials/
+*.json
+
+# Generated files
+party_details.csv
+
+# OS files
+.DS_Store
+Thumbs.db
