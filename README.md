@@ -453,8 +453,8 @@ For support, replace this section with your actual project contact details, such
 
 | Type | Details |
 | --- | --- |
-| Project owner | Rohhit Kumar Adak |
+| Project Owner | Rohit Kumar Adak |
 | Email | rohitadak0@gmail.com |
-| Portfolio | rohitadak.dev |
+| Portfolio | [rohitadak.dev](https://rohitadak.dev) |
 
 If you want, I can also tailor this README with your real support contact and add screenshots or usage examples.
