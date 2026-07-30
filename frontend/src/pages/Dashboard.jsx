@@ -1,11 +1,12 @@
-import { BarChart3, Mail, Send, Upload } from 'lucide-react'
+import { AlertCircle, AlertTriangle, BarChart3, CheckCircle2, Loader2, Mail, Send, Upload } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import StatisticsCard from '../components/StatisticsCard/StatisticsCard'
+import { getStatusInfo } from './UploadExcel'
 
 const recentCampaigns = [
   { name: 'Launch announcement', audience: '1,240 recipients', status: 'Queued' },
   { name: 'Weekly product update', audience: '820 recipients', status: 'Sent' },
-  { name: 'Re-engagement series', audience: '430 recipients', status: 'Draft' },
+  { name: 'Re-engagement series', audience: '430 recipients', status: 'Completed with Errors' },
 ]
 
 function Dashboard() {
@@ -62,13 +63,24 @@ function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {recentCampaigns.map((campaign) => (
-                <tr key={campaign.name}>
-                  <td>{campaign.name}</td>
-                  <td>{campaign.audience}</td>
-                  <td>{campaign.status}</td>
-                </tr>
-              ))}
+              {recentCampaigns.map((campaign) => {
+                const statusInfo = getStatusInfo(campaign.status)
+                return (
+                  <tr key={campaign.name}>
+                    <td>{campaign.name}</td>
+                    <td>{campaign.audience}</td>
+                    <td>
+                      <span className={statusInfo.className}>
+                        {statusInfo.type === 'success' && <CheckCircle2 size={13} />}
+                        {statusInfo.type === 'warning' && <AlertTriangle size={13} />}
+                        {statusInfo.type === 'error' && <AlertCircle size={13} />}
+                        {statusInfo.type === 'info' && <Loader2 size={13} className="spinner-icon" />}
+                        {statusInfo.label}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

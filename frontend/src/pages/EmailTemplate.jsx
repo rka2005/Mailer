@@ -21,7 +21,7 @@ function EmailTemplate() {
         </Button>
       </div>
 
-      <EmailEditor onChange={() => {}} />
+      <EmailEditor onChange={() => { }} />
     </section>
   )
 }

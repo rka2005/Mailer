@@ -37,7 +37,8 @@ const StyledWrapper = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #223243;
+    background-color: #1e293b;
+    border: 1px solid var(--border);
     transition: 0.4s;
     border-radius: 30px;
   }

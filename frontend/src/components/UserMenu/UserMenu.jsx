@@ -15,7 +15,7 @@ function UserMenu() {
   }
 
   return (
-    <div className="user-menu" style={{ position: 'relative' }}>
+    <div className="user-menu">
       <Button variant="secondary" onClick={() => setOpen((current) => !current)}>
         <UserCircle2 size={18} />
         {user?.name || 'Team User'}
@@ -23,26 +23,17 @@ function UserMenu() {
       </Button>
 
       {open ? (
-        <div
-          className="surface"
-          style={{
-            position: 'absolute',
-            right: 0,
-            top: 'calc(100% + 12px)',
-            width: 220,
-            padding: 10,
-            zIndex: 30,
-          }}
-        >
-          <Link className="nav-link" to="/profile" onClick={() => setOpen(false)}>
+        <div className="user-menu-dropdown">
+          <Link className="user-menu-item" to="/profile" onClick={() => setOpen(false)}>
             <UserCircle2 size={16} />
             Profile
           </Link>
-          <Link className="nav-link" to="/settings" onClick={() => setOpen(false)}>
+          <Link className="user-menu-item" to="/settings" onClick={() => setOpen(false)}>
             <Settings size={16} />
             Settings
           </Link>
-          <button className="nav-link" type="button" onClick={handleLogout}>
+          <div className="user-menu-divider" />
+          <button className="user-menu-item user-menu-logout" type="button" onClick={handleLogout}>
             <LogOut size={16} />
             Logout
           </button>

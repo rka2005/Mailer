@@ -58,6 +58,106 @@
   border: 1px solid var(--border);
   background: var(--surface);
   backdrop-filter: blur(18px);
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.stats-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.status-badge,
+.status-ok,
+.status-warning,
+.status-error,
+.status-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+  text-transform: uppercase;
+}
+
+/* 1. Green Status (Completed / Sent / Success) */
+.status-badge-success,
+.status-ok {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+:root[data-theme='dark'] .status-badge-success,
+:root[data-theme='dark'] .status-ok {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.45);
+}
+
+/* 2. Orange / Amber Status (Completed with Errors / Warning / Partial) */
+.status-badge-warning,
+.status-warning {
+  background: rgba(245, 158, 11, 0.14);
+  color: #c2410c;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+:root[data-theme='dark'] .status-badge-warning,
+:root[data-theme='dark'] .status-warning {
+  background: rgba(245, 158, 11, 0.22);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+/* 3. Red Status (Failed / Cancelled / Error) */
+.status-badge-error,
+.status-error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+:root[data-theme='dark'] .status-badge-error,
+:root[data-theme='dark'] .status-error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+/* 4. Blue Status (Queued / Processing / Running / Info) */
+.status-badge-info,
+.status-info {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+:root[data-theme='dark'] .status-badge-info,
+:root[data-theme='dark'] .status-info {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.45);
 }
 
 .public-nav {
@@ -355,12 +455,74 @@
 
 .topbar,
 .page-toolbar {
+  position: relative;
+  z-index: 50;
   border-radius: var(--radius-xl);
   padding: 18px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 200px;
+  padding: 8px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+:root[data-theme='light'] .user-menu-dropdown {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 38px rgba(15, 23, 42, 0.16);
+}
+
+.user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: var(--text-strong);
+  font-size: 0.92rem;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.user-menu-item:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.user-menu-logout:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.user-menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
 }
 
 .topbar-title {
@@ -498,16 +660,19 @@ th {
   place-items: center;
   gap: 12px;
   min-height: 220px;
-  border: 1.5px dashed rgba(148, 163, 184, 0.28);
+  border: 2px dashed var(--border);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--surface-soft);
   text-align: center;
   padding: 22px;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-.dropzone.active {
-  border-color: rgba(79, 140, 255, 0.65);
-  background: rgba(79, 140, 255, 0.08);
+.dropzone.active,
+.dropzone:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
 .upload-list,
@@ -524,10 +689,11 @@ th {
 
 .upload-progress-panel {
   margin-bottom: 16px;
-  padding: 16px;
+  padding: 18px;
   border-radius: 18px;
-  border: 1px solid rgba(79, 140, 255, 0.2);
-  background: linear-gradient(180deg, rgba(79, 140, 255, 0.12), rgba(79, 140, 255, 0.04));
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
 }
 
 .upload-progress-header {
@@ -544,20 +710,37 @@ th {
   font-size: 0.84rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  font-weight: 600;
 }
 
 .progress-track {
   height: 10px;
   border-radius: 999px;
   overflow: hidden;
-  background: rgba(148, 163, 184, 0.18);
+  background: color-mix(in srgb, var(--text) 12%, transparent);
 }
 
 .progress-fill {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, var(--accent), #7f70ff, #43c4ff);
-  transition: width 0.25s ease;
+  transition: width 0.3s ease;
+}
+
+.progress-fill-success {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.progress-fill-warning {
+  background: linear-gradient(90deg, #f59e0b, #ea580c);
+}
+
+.progress-fill-error {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.progress-fill-info {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
 }
 
 .progress-meta {
@@ -567,6 +750,7 @@ th {
   margin-top: 10px;
   color: var(--text-strong);
   font-size: 0.92rem;
+  font-weight: 500;
 }
 
 .progress-meta span:last-child {
@@ -581,7 +765,7 @@ th {
   padding: 14px;
   border-radius: 16px;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-soft);
 }
 
 .upload-item-main {
@@ -596,8 +780,12 @@ th {
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: rgba(79, 140, 255, 0.12);
-  color: #aecdff;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.spinner-icon {
+  animation: spin 1.2s linear infinite;
 }
 
 .editor-preview {

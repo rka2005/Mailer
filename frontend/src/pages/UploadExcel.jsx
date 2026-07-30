@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CheckCircle2, FileSpreadsheet, FileUp, Table2 } from 'lucide-react'
+import { AlertCircle, AlertTriangle, CheckCircle2, FileSpreadsheet, FileUp, Loader2, Table2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Button from '../components/Button/Button'
 import DragDropUpload from '../components/DragDropUpload/DragDropUpload'
@@ -7,19 +7,51 @@ import UploadCard from '../components/UploadCard/UploadCard'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
-const TERMINAL_STATUSES = new Set(['COMPLETED', 'FAILED', 'CANCELLED'])
+const TERMINAL_STATUSES = new Set(['COMPLETED', 'FAILED', 'CANCELLED', 'COMPLETED_WITH_ERRORS'])
 
 function formatStatus(status) {
   if (!status) return 'QUEUED'
   return String(status).replaceAll('_', ' ').toUpperCase()
 }
 
-function getStatusClass(status) {
-  const value = String(status || '').toUpperCase()
+export function getStatusInfo(status, failedCount = 0) {
+  const raw = String(status || '').toUpperCase().replaceAll('_', ' ')
 
-  if (value === 'COMPLETED') return 'status-ok'
-  if (value === 'FAILED' || value === 'CANCELLED') return 'status-error'
-  return 'status-warning'
+  if (
+    raw === 'COMPLETED WITH ERRORS' ||
+    raw.includes('ERROR') ||
+    raw.includes('WARNING') ||
+    raw.includes('PARTIAL') ||
+    (raw === 'COMPLETED' && failedCount > 0)
+  ) {
+    return {
+      type: 'warning',
+      label: 'COMPLETED WITH ERRORS',
+      className: 'status-badge status-badge-warning',
+    }
+  }
+
+  if (raw === 'COMPLETED' || raw === 'SUCCESS' || raw === 'SENT') {
+    return {
+      type: 'success',
+      label: 'COMPLETED',
+      className: 'status-badge status-badge-success',
+    }
+  }
+
+  if (raw === 'FAILED' || raw === 'CANCELLED' || raw.includes('FAIL')) {
+    return {
+      type: 'error',
+      label: raw || 'FAILED',
+      className: 'status-badge status-badge-error',
+    }
+  }
+
+  return {
+    type: 'info',
+    label: raw || 'QUEUED',
+    className: 'status-badge status-badge-info',
+  }
 }
 
 function clampProgress(progress) {
@@ -241,40 +273,47 @@ function UploadExcel() {
           </Button>
         </div>
 
-        {jobSnapshot && (
-          <div className="upload-progress-panel">
-            <div className="upload-progress-header">
-              <div>
-                <p className="progress-label">Backend processing</p>
-                <h4 className="card-title" style={{ marginTop: 4 }}>
-                  {jobSnapshot.jobId || 'Processing job'}
-                </h4>
+        {jobSnapshot && (() => {
+          const statusInfo = getStatusInfo(jobSnapshot.status, jobSnapshot.failed)
+          return (
+            <div className="upload-progress-panel">
+              <div className="upload-progress-header">
+                <div>
+                  <p className="progress-label">Backend processing</p>
+                  <h4 className="card-title" style={{ marginTop: 4 }}>
+                    {jobSnapshot.jobId || 'Processing job'}
+                  </h4>
+                </div>
+                <span className={statusInfo.className}>
+                  {statusInfo.type === 'success' && <CheckCircle2 size={14} />}
+                  {statusInfo.type === 'warning' && <AlertTriangle size={14} />}
+                  {statusInfo.type === 'error' && <AlertCircle size={14} />}
+                  {statusInfo.type === 'info' && <Loader2 size={14} className="spinner-icon" />}
+                  {statusInfo.label}
+                </span>
               </div>
-              <span className={`badge ${getStatusClass(jobSnapshot.status)}`}>
-                {formatStatus(jobSnapshot.status)}
-              </span>
-            </div>
 
-            <div className="progress-track" aria-label="Upload progress">
-              <div className="progress-fill" style={{ width: `${jobProgress}%` }} />
-            </div>
+              <div className="progress-track" aria-label="Upload progress">
+                <div className={`progress-fill progress-fill-${statusInfo.type}`} style={{ width: `${jobProgress}%` }} />
+              </div>
 
-            <div className="progress-meta">
-              <span>{jobProgress.toFixed(0)}% complete</span>
-              <span>
-                {(jobSnapshot.completed ?? 0) + (jobSnapshot.failed ?? 0)}
-                /
-                {jobSnapshot.total ?? 0}
-                {' '}parties processed
-              </span>
-            </div>
+              <div className="progress-meta">
+                <span>{jobProgress.toFixed(0)}% complete</span>
+                <span>
+                  {(jobSnapshot.completed ?? 0) + (jobSnapshot.failed ?? 0)}
+                  /
+                  {jobSnapshot.total ?? 0}
+                  {' '}parties processed
+                </span>
+              </div>
 
-            <p className="muted">
-              Stage: {formatStatus(jobSnapshot.currentStage)}
-              {jobSnapshot.failed ? ` · ${jobSnapshot.failed} failed` : ''}
-            </p>
-          </div>
-        )}
+              <p className="muted" style={{ marginTop: 8, fontSize: '0.88rem' }}>
+                Stage: {formatStatus(jobSnapshot.currentStage)}
+                {jobSnapshot.failed ? ` · ${jobSnapshot.failed} failed` : ''}
+              </p>
+            </div>
+          )
+        })()}
 
         <div className="upload-list">
           {files.length ? (

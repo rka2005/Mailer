@@ -14,9 +14,11 @@ import { NavLink } from 'react-router-dom'
 const links = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/upload-excel', label: 'Upload Excel', icon: FileUp },
-  { to: '/email-template', label: 'Email Template',
-    
-    icon: Mail, locked: true },
+  {
+    to: '/email-template', label: 'Email Template',
+
+    icon: Mail, locked: true
+  },
   { to: '/attachments', label: 'Attachments', icon: FolderOpen, locked: true },
   { to: '/history', label: 'History', icon: ClipboardList, locked: true },
   { to: '/profile', label: 'Profile', icon: UserCircle2 },
