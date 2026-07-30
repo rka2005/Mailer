@@ -9,8 +9,6 @@ from typing import Any
 import pandas as pd
 from fastapi import HTTPException, UploadFile
 from services.firestore_service import get_firestore_client
-from services.email_sender import send_email_with_pdf_attachment
-from services.pdf_generator import generate_party_pdf_buffer
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +66,6 @@ def process_party_spreadsheet(
     file: UploadFile,
     service_account_path: str | Path | None = None,
     collection_name: str = DEFAULT_COLLECTION,
-    sender_email: str | None = None,
 ) -> dict[str, Any]:
     file_bytes = file.file.read()
     dataframe = load_spreadsheet(file_bytes, file.filename or "uploaded-file.csv")
@@ -84,11 +81,7 @@ def process_party_spreadsheet(
 
     db = get_firestore_client(service_account_path)
 
-    emails_sent = 0
-    rows_processed_success = 0
-    rows_skipped = 0
-    rows_failed = 0
-    records = []
+    party_jobs = []
     
     logger.info("Processing spreadsheet %s with %s rows", file.filename, len(dataframe))
 
@@ -98,11 +91,11 @@ def process_party_spreadsheet(
 
     for party_name, group in grouped_parties:
         party_name = str(party_name).strip()
-        num_rows_in_group = len(group)
 
         if not party_name:
-            rows_skipped += num_rows_in_group
-            logger.warning("Skipped %s rows because Party Name is empty", num_rows_in_group)
+            logger.warning(
+                "Party Name is empty. Skipping."
+            )
             continue
 
         # Architecture Step: Firestore Lookup (ONCE per party)
@@ -112,20 +105,25 @@ def process_party_spreadsheet(
         party_details = get_party_details(db, party_name, collection_name)
 
         print("Firestore Data :", party_details)
+
         if not party_details:
-            rows_failed += num_rows_in_group
-            message = f"Party '{party_name}' not found in Firestore collection '{collection_name}'"
+            message = (
+                f"Party '{party_name}' not found in Firestore "
+                f"collection '{collection_name}'"
+            )
+
             logger.error(message)
-            records.append({"partyName": party_name, "status": "not_found_in_firestore", "error": message, "rows_affected": num_rows_in_group})
             continue
 
         email_address = str(party_details.get("email", "")).strip()
         print("Recipient Email :", email_address)
+
         if not email_address:
-            rows_skipped += num_rows_in_group
-            message = f"Party '{party_name}' has no email stored in Firestore"
+            message = (
+                f"Party '{party_name}' has no email stored in Firestore"
+            )
+
             logger.error(message)
-            records.append({"partyName": party_name, "status": "missing_email", "error": message, "rows_affected": num_rows_in_group})
             continue
 
         # Architecture Step: Collect all rows (bills) for the current party
@@ -145,62 +143,24 @@ def process_party_spreadsheet(
             "route": party_details.get("route", ""),
             "email": email_address,
             "contact": party_details.get("contact", ""),
-            "bills": bills  # Pass the entire list of bills to the PDF generator
+            "bills": bills,
+
+            "status": "QUEUED",
+
+            "retry_count": 0
         }
 
-        # Architecture Step: Generate ONE PDF containing all party rows
-        print("Bills :", len(merged_record["bills"]))
-        pdf_buffer = generate_party_pdf_buffer(merged_record)
-        print("PDF Generated")
-        
-        try:
-
-            print("\n")
-            print("="*70)
-            print("Party :", party_name)
-            print("Recipient :", email_address)
-            print("Bills :", len(bills))
-            print("="*70)
-
-            send_email_with_pdf_attachment(
-                recipient_email=email_address,
-                sender_email=sender_email,
-                subject=f"Account Statement - {party_name}",
-                body=f"Hello {party_name}",
-                pdf_buffer=pdf_buffer,
-                attachment_filename=f"{party_name}.pdf",
-            )
-
-            print("EMAIL SENT")
-
-            emails_sent += 1
-
-        except Exception as e:
-
-            print("\n")
-            print("EMAIL FAILED")
-            print(e)
-            print("\n")
-
-            raise          # <-- IMPORTANT
-
-        finally:
-
-            pdf_buffer.close()
+        party_jobs.append(merged_record)
 
     logger.info(
-        "Finished spreadsheet %s: emails_sent=%s rows_processed=%s rows_skipped=%s rows_failed=%s",
-        file.filename, emails_sent, rows_processed_success, rows_skipped, rows_failed
+        "Prepared %d party jobs",
+        len(party_jobs)
     )
 
     return {
         "filename": file.filename,
-        "rows": int(len(dataframe)),
-        "emails_sent_count": emails_sent,
-        "sent": rows_processed_success,
-        "skipped": rows_skipped,
-        "failed": rows_failed,
-        "records": records,
+        "rows": len(dataframe),
+        "party_jobs": party_jobs,
         "preview": dataframe_preview(dataframe),
         "columns": list(dataframe.columns),
     }

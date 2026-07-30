@@ -1,33 +1,33 @@
-from fastapi import APIRouter, File, Form, UploadFile
-from services.excel_processor import process_party_spreadsheet
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+
+from services.job_service import get_job
+from services.job_manager import start_job
 
 router = APIRouter(
     prefix="/api",
     tags=["Upload"]
 )
 
+
 @router.post("/upload")
 async def upload_excel(
     file: UploadFile = File(...),
     sender_email: str | None = Form(None),
 ):
-    print("\n" + "="*70)
-    print("✅ /api/upload endpoint called")
-    print("File:", file.filename)
-    print("Sender:", sender_email)
-    print("="*70)
-
-    try:
-        result = process_party_spreadsheet(
+    return start_job(
         file=file,
-        sender_email=sender_email
+        sender_email=sender_email,
     )
 
-        return {
-            "status":"success",
-            "data":result
-        }
 
-    except Exception as e:
-        print(e)
-        raise
+@router.get("/jobs/{job_id}")
+async def get_job_status(job_id: str):
+    job = get_job(job_id)
+
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    return {
+        "status": "ok",
+        "data": job,
+    }
